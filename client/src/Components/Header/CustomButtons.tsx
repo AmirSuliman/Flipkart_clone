@@ -3,10 +3,11 @@ import { FaCartShopping } from 'react-icons/fa6';
 import LoginDialog from '../Login/LoginDialog';
 import { useState, useContext } from 'react';
 import { DataContext } from '../../context/DataProvider';
+import Profile from './Profile';
 
 const CustomButtons = () => {
   const [open, setOpen] = useState(false);
-  const { account } = useContext(DataContext) || {};
+  const { account, setAccount } = useContext(DataContext) || {};
 
   const handleOpen = () => {
     setOpen(true);
@@ -14,7 +15,7 @@ const CustomButtons = () => {
   return (
     <div className="flex items-center gap-10 text-sm">
       {account ? (
-        account
+        <Profile account={account} setAccount={setAccount} />
       ) : (
         <Button
           onClick={() => {

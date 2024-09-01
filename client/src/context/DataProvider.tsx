@@ -1,12 +1,18 @@
 import { createContext, ReactNode, useState } from 'react';
 
-export const DataContext = createContext<{
+interface DataContextType {
   account: string;
   setAccount: (value: string) => void;
-} | null>(null);
+}
 
+const defaultContextValue: DataContextType = {
+  account: '',
+  setAccount: () => {},
+};
+
+export const DataContext = createContext<DataContextType>(defaultContextValue);
 const DataProvider = ({ children }: { children: ReactNode }) => {
-  const [account, setAccount] = useState('');
+  const [account, setAccount] = useState<string>(''); // State to manage the account
   return (
     <DataContext.Provider value={{ account, setAccount }}>
       {children}

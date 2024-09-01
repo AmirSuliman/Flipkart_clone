@@ -1,6 +1,9 @@
 import { Button, Dialog, TextField } from '@mui/material';
 import React, { useState, useContext, ChangeEvent } from 'react';
-import { authenticateSignup } from '../../services/axiosInstance';
+import {
+  authenticateSignup,
+  authenticateLogin,
+} from '../../services/axiosInstance';
 import { DataContext } from '../../context/DataProvider';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
@@ -49,6 +52,11 @@ const initialSignupData: SignupData = {
   phone: '',
 };
 
+const initialLoginData = {
+  username: '',
+  password: '',
+};
+
 interface LoginDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -57,6 +65,7 @@ interface LoginDialogProps {
 const LoginDialog: React.FC<LoginDialogProps> = ({ open, setOpen }) => {
   const [account, toggleAccount] = useState(accountInitialValues.login);
   const [signupData, setSignupData] = useState(initialSignupData);
+  const [login, setLogin] = useState(initialLoginData);
 
   const { setAccount } = useContext(DataContext) || {};
 
@@ -72,10 +81,15 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, setOpen }) => {
     setSignupData({ ...signupData, [e.target.name]: e.target.value });
   };
 
+  const onValueChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const { name, value } = e.target;
+    setLogin({ ...login, [name]: value });
+  };
+
   const handleSignupSubmit = async () => {
     try {
       const response = await authenticateSignup(signupData);
-
       if (response?.status === 200) {
         handleClose();
         setAccount?.(signupData.firstName);
@@ -94,6 +108,20 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, setOpen }) => {
     }
   };
 
+  const loginUser = async () => {
+    try {
+      const response = await authenticateLogin(login);
+      console.log(response);
+      if (response.status === 200) {
+        handleClose();
+        setAccount?.(response.data.user.firstName);
+        toast.success('Login successful');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={handleClose}>
       <div className="h-[80svh] w-[90svh] flex">
@@ -109,12 +137,23 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, setOpen }) => {
         </div>
         {account.view === 'login' ? (
           <div className="flex flex-col p-8 gap-4">
-            <TextField variant="standard" label="Enter Email/Phone number" />
-            <TextField variant="standard" label="Enter Password" />
+            <TextField
+              onChange={onValueChange}
+              name="username"
+              variant="standard"
+              label="Enter Username"
+            />
+            <TextField
+              onChange={onValueChange}
+              name="password"
+              variant="standard"
+              label="Enter Password"
+            />
             <p className="text-xs text-[#878787]">
               By continuing you agree to Flipkart's terms and privacy policy.
             </p>
             <Button
+              onClick={loginUser}
               className="!bg-[#fb641b] !rounded-sm !h-[48px] !text-white"
               style={{ textTransform: 'none' }}
             >
